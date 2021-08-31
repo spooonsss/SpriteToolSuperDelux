@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(pixi VERSION 1.32)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CURRENT_SOURCE_DIR "src")
+set(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PIXI_SOURCE_FILES "")
 list(
     APPEND PIXI_SOURCE_FILES
@@ -17,6 +17,7 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/MeiMei/MeiMei.cpp" 
     "${CMAKE_CURRENT_SOURCE_DIR}/asar/asardll.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/json/base64.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/encoding.cpp"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/cfg.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/file_io.h"
@@ -30,8 +31,21 @@ list(
     "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/json_const.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/encoding.h"
 )
+
 add_executable(pixi ${PIXI_SOURCE_FILES})
+
+# manifest file only runs on msvc
+if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX)
+    add_custom_command(
+        TARGET pixi
+        POST_BUILD
+        COMMAND mt.exe -manifest ${CMAKE_CURRENT_SOURCE_DIR}/pixi.manifest -outputresource:${CMAKE_CURRENT_BINARY_DIR}/pixi.exe
+        COMMENT "Applying manifest file"
+    )
+endif()
+
 if (CMAKE_COMPILER_IS_GNUCXX)
     if (WIN32)
         message(STATUS "Windows build, adding static libraries")
@@ -43,7 +57,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
             target_link_options(pixi PRIVATE -static -s -Wl,--gc-sections)
         endif()
         target_link_libraries(pixi PRIVATE -static-libgcc -static-libstdc++)
-        target_compile_options(pixi PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(pixi PRIVATE -std=c++20 -Wall -Wextra -Wpedantic)
     else()
         message(STATUS "Unix build, not adding static libraries")   # on unix we don't care about -m32, for... some reason I guess
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -53,14 +67,14 @@ if (CMAKE_COMPILER_IS_GNUCXX)
             target_link_options(pixi PRIVATE -s -Wl,--gc-sections)
         endif()
         target_link_libraries(pixi PRIVATE dl)
-        target_compile_options(pixi PRIVATE -Wall -Wextra -Wpedantic)
+        target_compile_options(pixi PRIVATE -std=c++20 -Wall -Wextra -Wpedantic)
     endif() 
     message(STATUS "GCC detected, adding compile flags")
 else()
     set(CMAKE_GENERATOR "Visual Studio 16 2019")
-    target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT)
+    target_link_options(pixi PRIVATE /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT /MANIFEST:NO)
     message(STATUS "MSVC detected, adding compile flags")
-    target_compile_options(pixi PRIVATE /MT /Wall /std:c++17)
+    target_compile_options(pixi PRIVATE /MT /Wall /std:c++latest /utf-8)
     target_compile_options(pixi PRIVATE
             # generic & extremely noisy warnings which do (almost) nothing useful
             # not to say that most come from code which I have no control over
