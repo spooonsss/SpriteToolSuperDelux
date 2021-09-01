@@ -36,6 +36,8 @@ list(
 
 add_executable(pixi ${PIXI_SOURCE_FILES})
 
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 # manifest file only runs on msvc
 if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX)
     add_custom_command(
