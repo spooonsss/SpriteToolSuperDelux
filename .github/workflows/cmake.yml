@@ -69,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: pixi
-        path: ${{github.workspace}}/build/pixi.exe
+        path: ${{github.workspace}}/build/Release/pixi.exe
       if: matrix.os == 'windows-latest'
     
     - name: Upload
