@@ -11,6 +11,7 @@
 #include "asar/asardll.h"
 #include "cfg.h"
 #include "config.h"
+#include "encoding.h"
 #include "file_io.h"
 #include "json.h"
 #include "map16.h"
@@ -827,6 +828,7 @@ void remove(std::string_view dir, const char *file) {
 }
 
 int main(int argc, char *argv[]) {
+    pixi::console_init();
     ROM rom;
     // individual lists containing the sprites for the specific sections
     sprite *sprite_list = new sprite[MAX_SPRITE_COUNT];
