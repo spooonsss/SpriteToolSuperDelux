@@ -43,7 +43,7 @@ if (WIN32 AND NOT CMAKE_COMPILER_IS_GNUCXX)
     add_custom_command(
         TARGET pixi
         POST_BUILD
-        COMMAND mt.exe -manifest ${CMAKE_CURRENT_SOURCE_DIR}/pixi.manifest -outputresource:${CMAKE_CURRENT_BINARY_DIR}/pixi.exe
+        COMMAND mt.exe -manifest ${CMAKE_CURRENT_SOURCE_DIR}/pixi.manifest -outputresource:$<TARGET_FILE:pixi>
         COMMENT "Applying manifest file"
     )
 endif()
